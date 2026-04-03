@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id           String        @id @default(cuid())
+  name         String
+  cnpj         String        @unique
+  email        String
+  phone        String
+  isActive     Boolean       @default(true)
+  isSuspended  Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  users         User[]
+  subscriptions Subscription[]
+  auditLogs     AuditLog[]
+  leaders       Leader[]
+  meetings      Meeting[]
+  fuelVouchers  FuelVoucher[]
+  transactions  Transaction[]
+
+  @@map("tenants")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  cpf         String   @unique
+  password    String
+  name        String
+  email       String
+  phone       String
+  role        UserRole @default(STANDARD)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  auditLogs  AuditLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  ROOT
+  ADMIN
+  STANDARD
+}
+
+model Subscription {
+  id           String             @id @default(cuid())
+  status       SubscriptionStatus @default(PENDING)
+  plan         String
+  price        Float
+  currency     String             @default("BRL")
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd Boolean       @default(false)
+  graceEndsAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Relations
+  tenantId   String
+  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  CANCELED
+  INACTIVE
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId   String?
+  user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenantId String
+  tenant   Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
+
+model Leader {
+  id          String   @id @default(cuid())
+  name        String
+  cpf         String
+  phone       String
+  email       String
+  level       LeaderLevel @default(BASIC)
+  performance Float?      @default(0.0)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  tenantId       String
+  tenant         Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parentLeaderId String?
+  parentLeader   Leader?     @relation("LeaderHierarchy", fields: [parentLeaderId], references: [id], onDelete: SetNull)
+  childLeaders   Leader[]    @relation("LeaderHierarchy")
+  meetings       Meeting[]
+  fuelVouchers   FuelVoucher[]
+
+  @@map("leaders")
+}
+
+enum LeaderLevel {
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+  MASTER
+}
+
+model Meeting {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  address     String
+  latitude    Float
+  longitude   Float
+  radius      Float    @default(500)
+  startTime   DateTime
+  endTime     DateTime?
+  mood        MeetingMood?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenantId     String
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leaderId     String
+  leader       Leader    @relation(fields: [leaderId], references: [id], onDelete: Cascade)
+  attendees    Attendee[]
+  qrCode       QrCode?
+
+  @@map("meetings")
+}
+
+enum MeetingMood {
+  EXCELLENT
+  GOOD
+  NEUTRAL
+  TENSE
+  CRITICAL
+}
+
+model QrCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  secret    String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  meetingId String  @unique
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@map("qr_codes")
+}
+
+model Attendee {
+  id         String   @id @default(cuid())
+  name       String
+  whatsapp   String
+  cpf        String?
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  // Relations
+  meetingId String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@map("attendees")
+}
+
+model FuelVoucher {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  maxLiters   Float
+  usedLiters  Float    @default(0)
+  expiresAt   DateTime
+  isUsed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  leaderId String
+  leader   Leader @relation(fields: [leaderId], references: [id], onDelete: Cascade)
+
+  @@map("fuel_vouchers")
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  type        TransactionType
+  amount      Float
+  currency    String   @default("BRL")
+  category    String
+  description String?
+  date        DateTime
+  receiptUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model SocialStat {
+  id          String   @id @default(cuid())
+  platform    String   @default("INSTAGRAM")
+  followers   Int
+  engagement  Float
+  posts       Int
+  date        DateTime
+  createdAt   DateTime @default(now())
+
+  // Relations
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("social_stats")
+}
