@@ -1,3 +1,5 @@
+export const UNLIMITED_QUOTA = -1;
+
 export const APP_CONFIG = {
   NAME: 'ABRIL',
   VERSION: '1.0.0',
@@ -26,8 +28,8 @@ export const SUBSCRIPTION_PLANS = {
     name: 'Enterprise',
     price: 999,
     currency: 'BRL',
-    maxUsers: -1,
-    maxLeaders: -1,
+    maxUsers: UNLIMITED_QUOTA,
+    maxLeaders: UNLIMITED_QUOTA,
   },
 } as const;
 

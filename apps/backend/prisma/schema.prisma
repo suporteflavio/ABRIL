@@ -26,6 +26,7 @@ model Tenant {
   meetings      Meeting[]
   fuelVouchers  FuelVoucher[]
   transactions  Transaction[]
+  socialStats   SocialStat[]
 
   @@map("tenants")
 }

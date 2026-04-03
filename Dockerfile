@@ -12,7 +12,7 @@ COPY packages/shared/package.json ./packages/shared/
 COPY packages/config/package.json ./packages/config/
 
 # Install dependencies
-RUN npm install -g pnpm@8
+RUN npm install -g pnpm@8.15.0
 RUN pnpm install --frozen-lockfile
 
 # Copy source code
