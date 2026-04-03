@@ -65,3 +65,20 @@ jobs:
           DATABASE_URL: postgresql://election_test:election_test_password@localhost:5432/election_test_db
           JWT_SECRET: test_jwt_secret_election_saas_32_chars_minimum
           NODE_ENV: test
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
