@@ -6,15 +6,65 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8.15.6'
+
 jobs:
   build:
     name: Build & Test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: election_test
+          POSTGRES_PASSWORD: election_test_password
+          POSTGRES_DB: election_test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm type-check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+        env:
+          DATABASE_URL: postgresql://election_test:election_test_password@localhost:5432/election_test_db
+          JWT_SECRET: test_jwt_secret_election_saas_32_chars_minimum
+          NODE_ENV: test
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

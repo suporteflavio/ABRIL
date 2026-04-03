@@ -1,67 +1,56 @@
-version: '3.8'
+version: '3.9'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: election_user
+      POSTGRES_PASSWORD: election_password
+      POSTGRES_DB: election_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/setup-rls.sql:/docker-entrypoint-initdb.d/01-setup-rls.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U election_user -d election_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: backend
-    container_name: abril-backend
-    ports:
-      - '${BACKEND_PORT:-3001}:3001'
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
     environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - DATABASE_URL=${DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+      DATABASE_URL: postgresql://election_user:election_password@postgres:5432/election_db
+      JWT_SECRET: local_dev_jwt_secret_change_in_production
+      JWT_EXPIRES_IN: 7d
+      PORT: 3001
+      NODE_ENV: development
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - '3001:3001'
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
     volumes:
       - ./apps/backend:/app/apps/backend
       - /app/apps/backend/node_modules
-    restart: unless-stopped
 
   web:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: web
-    container_name: abril-web
-    ports:
-      - '${FRONTEND_PORT:-3000}:3000'
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
     environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    ports:
+      - '3000:3000'
     depends_on:
       - backend
-    volumes:
-      - ./apps/web:/app/apps/web
-      - /app/apps/web/node_modules
-    restart: unless-stopped
-
-  db:
-    image: postgres:15-alpine
-    container_name: abril-db
-    ports:
-      - '5432:5432'
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=abril
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: abril-redis
-    ports:
-      - '6379:6379'
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
 
 volumes:
   postgres_data:
-  redis_data:

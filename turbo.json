@@ -1,13 +1,15 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
+    "DATABASE_URL",
+    "JWT_SECRET",
     "NODE_ENV",
-    "PORT"
+    "PORT",
+    "NEXT_PUBLIC_API_URL"
   ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {
@@ -15,16 +17,35 @@
       "persistent": true
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "outputs": []
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "test": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env.test*"]
+      "outputs": ["coverage/**"],
+      "env": [
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "NODE_ENV"
+      ]
     },
-    "format": {
+    "test:e2e": {
+      "dependsOn": ["^build"],
       "cache": false
     },
     "clean": {
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
+    "db:migrate": {
       "cache": false
     }
   }

@@ -1,42 +1,16 @@
-# Dependencies
-node_modules
-**/node_modules
-
-# Build outputs
-dist
-build
-out
-.next
-**/.next/cache
-
-# Environment files
+node_modules/
+.pnpm-store/
+dist/
+build/
+.next/
+out/
+coverage/
+*.log
 .env
 .env.local
 .env.*.local
-
-# Logs
-logs
-*.log
-
-# Development files
-.git
-.gitignore
-.github
-**/.eslintrc*
-**/.prettierrc*
-*.md
-README*
-docs
-scripts
-
-# Test files
-**/__tests__
-**/*.test.*
-**/*.spec.*
-**/coverage
-
-# Cache
-.turbo
-**/.turbo
-.cache
-**/.eslintcache
+.turbo/
+*.db
+*.db-journal
+.DS_Store
+Thumbs.db
