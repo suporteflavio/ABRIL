@@ -48,3 +48,6 @@ coverage/
 
 # pnpm
 .pnpm-debug.log
+
+# TypeScript incremental build
+*.tsbuildinfo
