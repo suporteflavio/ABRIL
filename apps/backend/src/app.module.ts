@@ -20,12 +20,10 @@ import { HealthModule } from './health/health.module';
       envFilePath: ['.env', '.env.local', '.env.production'],
     }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 100,
-      },
-    ]),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 100,
+    }),
     DatabaseModule,
     CommonModule,
     AuthModule,
