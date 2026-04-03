@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+build
+out
+.next
+**/.next/cache
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Development files
+.git
+.gitignore
+.github
+**/.eslintrc*
+**/.prettierrc*
+*.md
+README*
+docs
+scripts
+
+# Test files
+**/__tests__
+**/*.test.*
+**/*.spec.*
+**/coverage
+
+# Cache
+.turbo
+**/.turbo
+.cache
+**/.eslintcache

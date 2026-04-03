@@ -1,0 +1,22 @@
+{
+  "name": "@abril/backend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "ABRIL backend API server",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "test": "jest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@abril/shared": "*"
+  },
+  "devDependencies": {
+    "@abril/config": "*",
+    "typescript": "^5.0.0"
+  }
+}
