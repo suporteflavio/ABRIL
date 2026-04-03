@@ -2,7 +2,7 @@
 FROM node:18-alpine AS base
 RUN corepack enable && corepack prepare pnpm@8.15.6 --activate
 WORKDIR /app
-COPY pnpm-workspace.yaml package.json turbo.json ./
+COPY pnpm-workspace.yaml package.json turbo.json tsconfig.json ./
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/config/package.json ./packages/config/
 COPY apps/backend/package.json ./apps/backend/
@@ -38,6 +38,7 @@ CMD ["node", "apps/backend/dist/main.js"]
 FROM deps AS web-build
 COPY packages/ ./packages/
 COPY apps/web/ ./apps/web/
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter=web run build
 
 # ---- Web production image ------------------------------------------------
