@@ -5,6 +5,12 @@ const nextConfig = {
   experimental: {
     typedRoutes: false,
   },
+  images: {
+    domains: ['web-production-26206.up.railway.app', 'localhost'],
+  },
+  env: {
+    API_URL: process.env.API_URL || 'https://backend-production-2ee38.up.railway.app',
+  },
   async headers() {
     return [
       {
