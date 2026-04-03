@@ -1,0 +1,14 @@
+{
+  "name": "@abril/config",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared configuration (ESLint, TypeScript, etc.) for ABRIL",
+  "main": "index.js",
+  "scripts": {
+    "lint": "echo 'No lint for config package'",
+    "clean": "echo 'No clean for config package'"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
