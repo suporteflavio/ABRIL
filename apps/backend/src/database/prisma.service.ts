@@ -21,10 +21,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     await this.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`;
   }
 
-  async withTenant<T>(tenantId: string, fn: () => Promise<T>): Promise<T> {
+  async withTenant<T>(tenantId: string, fn: (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => Promise<T>): Promise<T> {
     return this.$transaction(async (tx) => {
       await tx.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`;
-      return fn();
+      return fn(tx);
     });
   }
 }

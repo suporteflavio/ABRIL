@@ -20,19 +20,19 @@ END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
 -- ---- Policies for tenants table -----------------------------------------
-CREATE POLICY tenant_isolation ON tenants
+CREATE POLICY tenant_isolation_tenants ON tenants
   USING (id = current_tenant_id() OR current_setting('app.current_tenant_id', true) IS NULL);
 
 -- ---- Policies for users table -------------------------------------------
-CREATE POLICY tenant_isolation ON users
+CREATE POLICY tenant_isolation_users ON users
   USING (tenant_id = current_tenant_id() OR current_setting('app.current_tenant_id', true) IS NULL);
 
 -- ---- Policies for subscriptions table -----------------------------------
-CREATE POLICY tenant_isolation ON subscriptions
+CREATE POLICY tenant_isolation_subscriptions ON subscriptions
   USING (tenant_id = current_tenant_id() OR current_setting('app.current_tenant_id', true) IS NULL);
 
 -- ---- Policies for audit_logs table --------------------------------------
-CREATE POLICY tenant_isolation ON audit_logs
+CREATE POLICY tenant_isolation_audit_logs ON audit_logs
   USING (tenant_id = current_tenant_id() OR current_setting('app.current_tenant_id', true) IS NULL);
 
 -- Grant usage on schema
