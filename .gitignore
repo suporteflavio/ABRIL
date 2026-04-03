@@ -6,6 +6,11 @@ node_modules/
 dist/
 .next/
 build/
+*.tsbuildinfo
+
+# PWA generated files
+apps/web/public/sw.js
+apps/web/public/workbox-*.js
 
 # Environment variables
 .env
